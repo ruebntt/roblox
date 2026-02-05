@@ -1,0 +1,83 @@
+version: 1.0
+
+environment: production
+
+app:
+  name: "RobloxCaptchaSolver"
+  version: "1.0.0"
+  debug: false
+  host: 0.0.0.0
+  port: 8080
+  workers: 4
+  environment: production
+  secret_key: "s3cr3t_k3y_for_jwt_or_session"  # заменить на реальный секрет
+
+api:
+  captcha_provider:
+    service: 2captcha  # или anti-captcha
+    api_key: "YOUR_2CAPTCHA_API_KEY"  # вставьте сюда ключ
+    request_timeout: 30  # секунд
+    max_retry: 3
+    polling_interval: 5  # интервал опроса капчи
+
+database:
+  driver: postgresql
+  host: db.example.com
+  port: 5432
+  username: dbuser
+  password: "super_secure_password"
+  database_name: roblox_auth
+  pool_size: 20
+  max_overflow: 10
+  ssl_mode: require
+  connect_timeout: 10
+
+timeouts:
+  request_timeout: 15  # основные таймауты запросов
+  captcha_solver_timeout: 120  # максимум времени для решения капчи
+  api_retry_delay: 2  # задержка между попытками запросов
+
+logging:
+  level: INFO
+  handlers:
+    console:
+      class: logging.StreamHandler
+      formatter: detailed
+      stream: ext://sys.stdout
+    file:
+      class: logging.FileHandler
+      filename: /var/log/roblox_captcha.log
+      formatter: detailed
+      encoding: utf-8
+      mode: a
+  formatters:
+    detailed:
+      format: |
+        [%(asctime)s] %(levelname)s [%(name)s]: %(message)s (%(pathname)s:%(lineno)d)
+      datefmt: "%Y-%m-%d %H:%M:%S"
+  root:
+    level: INFO
+    handlers: [console, file]
+  loggers:
+    uvicorn:
+      level: WARNING
+      propagate: false
+    sqlalchemy:
+      level: WARNING
+    captcha_solver:
+      level: DEBUG 
+security:
+  jwt_secret: "super_secret_jwt_key"  
+  token_expiry_seconds: 3600  # 1 час
+  cors:
+    allowed_origins:
+      - https://myproductiondomain.com
+      - https://anotherdomain.com
+    allowed_methods: ["GET", "POST", "OPTIONS"]
+    allowed_headers: ["Authorization", "Content-Type"]
+    allow_credentials: true
+
+monitoring:
+  enabled: true
+  endpoint: "http://monitoring.example.com/metrics"
+  interval: 60  # сек
