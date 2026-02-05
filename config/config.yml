@@ -81,3 +81,119 @@ monitoring:
   enabled: true
   endpoint: "http://monitoring.example.com/metrics"
   interval: 60  # сек
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  version: 1.0
+
+# Общие параметры
+app:
+  name: "RobloxCaptchaBypass"
+  environment: "production"
+  debug: false
+  secret_key: "YOUR_SECURE_SECRET_KEY"  # секретные ключи для подписи, шифрования
+  api_version: "v1"
+  timezone: "UTC"
+  locale: "en"
+
+# Локальные параметры
+server:
+  host: "0.0.0.0"
+  port: 8080
+  workers: 4  # количество воркеров для асинхронной обработки
+  max_connections: 1000
+  timeout: 30  # таймаут запросов в секундах
+  ssl:
+    enabled: true
+    certfile: "/path/to/cert.pem"
+    keyfile: "/path/to/key.pem"
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 60
+    burst: 10
+
+# База данных
+database:
+  engine: "postgresql"
+  host: "db.prod.internal"
+  port: 5432
+  username: "prod_user"
+  password: "YOUR_SECURE_DB_PASSWORD"
+  database: "captcha_service"
+  pool_size: 20
+  max_overflow: 10
+  pool_timeout: 30
+  echo: false
+
+# External API Keys
+api_keys:
+  two_captcha_api_key: "YOUR_2CAPTCHA_API_KEY"
+  anti_captcha_api_key: "YOUR_ANTICAPTCHA_API_KEY"
+
+# CAPTCHA параметры
+captcha:
+  provider: "2captcha"  # или 'anticaptcha'
+  default_timeout: 180  # таймаут на решение CAPTCHA
+  polling_interval: 5  # интервал опроса задач
+
+# Логирование
+logging:
+  level: INFO
+  handlers:
+    console:
+      class: "logging.StreamHandler"
+      formatter: "detailed"
+      stream: "ext://sys.stdout"
+    file:
+      class: "logging.FileHandler"
+      filename: "/var/log/roblox_captcha.log"
+      formatter: "detailed"
+      encoding: "utf-8"
+  formatters:
+    detailed:
+      format: "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)d] - %(message)s"
+      datefmt: "%Y-%m-%d %H:%M:%S"
+
+# Трассировка/метрики (опционально, для продакшена)
+tracing:
+  enabled: true
+  provider: "jaeger"  # или 'zipkin'
+  jaeger_url: "http://jaeger-agent:14268/api/traces"
+
+# Кэширование
+cache:
+  type: redis
+  host: "redis.prod.internal"
+  port: 6379
+  db: 0
+  password: "YOUR_REDIS_PASSWORD"
+  timeout: 5
+
+# Middleware и антивирусные политики
+middleware:
+  cors:
+    enabled: true
+    origins:
+      - "https://*.roblox.com"
+      - "https://roblox.com"
+    allow_credentials: true
+  rate_limit:
+    enabled: true
+    window: 60  # seconds
+    max_requests: 1000
+  security_headers:
+    content_security_policy: "default-src 'self';"
+    x_frame_options: "DENY"
+    x_content_type_options: "nosniff"
+    referrer_policy: "no-referrer"
